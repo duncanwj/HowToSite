@@ -4,6 +4,13 @@ html, body {
   margin: 0;
 }
 
+article {
+  margin: 0 auto;
+  max-width: 35em;
+  padding: 2em 0.75em 5em 0.75em;
+  position: relative;
+}
+
 body {
   font-family: Georgia, serif;
   font-size: 20px;
