@@ -5,5 +5,342 @@
 <title>290 How To</title>
 </head>
 <body>
+  <h1> Blizzard WoW Community API </h1>
+<h2> A Short Getting Started </h2>
+<h3> The Blizzard Documentation </h3>
+<p>
+		The Blizzard WoW Community API can be found <a href="https://dev.battle.net/io-docs">here</a>. 
+	The API can be used to access a massive amount of data from characters, guilds, and achievements to 
+	PVP Ladders, item recipes, and quest properties. Popular community sites like <a href="http://www.wowhead.com/">WoWhead</a>
+	and <a href="https://theunderminejournal.com/">The Undermine Journal</a> use the API (and their own databases, among other resources) to create
+	amazing and useful websites.
+</p>
+<p>
+		Blizzard's documentation is pretty neat as it allows the user to make sample calls using the various API methods but other than that there
+	is little usage and no featured getting started guide. While there is an official forum full of helpful people, most of the excellent fansite documentation
+	known of the WoW community is for Lua programming (for AddOns) and the client software API, not for the Web API. This site aims to give new users direction on how to
+	actually get information using the API and some basic ideas on how to create something useful with the information received. 
+</p>
+<h3> Actually Getting Started </h3>
+<p>
+		Visit the API documentation <a href="https://dev.battle.net/io-docs">here</a> and select WoW Community APIs - (your region) from the drop down list. 
+	To actually get started using the Blizzard API you will need an API key. The documentation walks you through exactly how to do this, and reminds you at the very beginning of the page
+	that an API key is required. This is a pretty simple process that involves creating a Mashery account and submitting a short application that will likely be accepted immediately.
+	Once you have an API key, place it in the box if it isn't done so automatically and you can play around with the test calls on the documentation site. 
+</p>
+<p>
+		Though there is no documentation present on what to do with the API calls, the official documentation is very useful for seeing what is going to be returned
+	by an API call: what information it gives, the structure of the JSON, data keys to actually access the values, and even a copy-pastable GET URL if you enter the proper information in the appropriate boxes.
+	But again, what are some things we can actually do with this data once we get it? I've created a simple (and incredibly basic) at-a-glance type website for one of my characters accessible
+	<a href="https://duncanwj.github.io/WoWtoDo/">here</a>. This displays some information about my character and whether or not I've completed the daily quest Blingtron 6000 and will update automatically using the API (assuming I can ever find some time to play...).
+	You will also notice a section about tradeskills that will not update and we're going to talk about that later.
+</p>
+<h3> Our First Call </h3>
+<p>
+		Let's ask Blizz for some information and look at how to use it in our own site. I want basic information about my character so I'm going to use the Character Profile API.
+	This has the form:	
+</p>
+<p>GET /WOW/CHARACTER/REALM/CHARACTERNAME/LOCALE/APIKEY</p>
+<p>
+	Realms are entered by their "slug," meaning all lowercase and letters only. My realm Thrall-US would for example be entered as 'thrall' and the realm Kil'Jaeden-US would be entered as 'kiljaeden.'
+	Character name is unsurprisingly the name of your character and can be entered as normal. For my character I would use 'Dralsi.' Locale will be entered in the form 'xx_YY' and can only be a certain few options. If, like me, you play on US servers and in English, you will use the locale 'en_US.'
+	There is dropdown for the locale field on the official documentation site that lists the available options. You will need to send your own API key with every request as well. Let's send an actual request, and save the response to do with it what we would like. A request in Javascript would look something like this:
+</p>
+<pre>
+	var charReq = new XMLHttpRequest();
+	charReq.open("GET", "https://us.api.battle.net/wow/character/thrall/Dralsi?locale=en_US&apikey=c7hv6esk265g4ujytse3vbmdz5mcp5nz", true);
+	charReq.addEventListener("load", function()
+		{
+			if(charReq.status >= 200 && charReq.status < 400)
+			{
+				var charData = JSON.parse(charReq.responseText);
+				console.log("Character data retrieved.");
+			}
+			else
+			{
+				console.log("Error in network request: " + charReq.statusText);
+			}
+			// Update character data
+			document.getElementById('charname').textContent = charData.name;
+			document.getElementById('charrealm').textContent = charData.realm;
+			document.getElementById('charbg').textContent = charData.battlegroup;
+			document.getElementById('charachp').textContent = charData.achievementPoints;
+			document.getElementById('charhks').textContent = charData.totalHonorableKills;
+		});
+	charReq.send(null);
+	console.log("Requesting character data.");
+</pre>
+<p>
+	What's going on here? First we have:
+</p>
+<pre>
+	var charReq = new XMLHttpRequest();
+</pre> 
+<p>
+	Which creates a new basic GET HTTP request which is how the Blizz API is accessed in Javascript.
+	Then we have:
+</p>
+<pre>
+	charReq.open("GET", "https://us.api.battle.net/wow/character/thrall/Dralsi?locale=en_US&apikey=c7hv6esk265g4ujytse3vbmdz5mcp5nz", true);
+	charReq.send(null);
+	console.log("Requesting character data.");
+</pre>
+<p>
+	This will send an asynchronus request to Blizzard to get our character information and Blizz will send it back to us!
+	Unless otherwise specified in the official documentation, requests will be returned as a JSON string. But hey what about the rest of that code?
+	This part:
+</p>
+<pre>
+	charReq.addEventListener("load", function()
+		{
+			if(charReq.status >= 200 && charReq.status < 400)
+			{
+				var charData = JSON.parse(charReq.responseText);
+				console.log("Character data retrieved.");
+			}
+			else
+			{
+				console.log("Error in network request: " + charReq.statusText);
+			}
+		});
+</pre>
+<p>
+	adds an event listener that will trigger when we actually get the information back. Since it is a network request, the time to send and receive the information
+	may be much slower than the time Javascript can process lines of code, so we add this section so that we're only using our data if we have actually received it.
+	This also includes some basic error checking that will print 'Character data retrieved.' if we actually got the data and 'Error in network request' if we didn't.
+	The most important part of the above code block is this line here:
+</p>
+<pre>
+	var charData = JSON.parse(charReq.responseText);
+</pre>
+<p>
+	This is where we get our actual data object. Blizzard will respond to our request with a string in XXXX.responseText but we want an actual JSON object. 
+	<pre>JSON.parse(charReq.responseText)</pre> will do this for us. Then our character data will look something like this:
+</p>
+<pre>
+	{
+		"lastModified": 1488534078000,
+		"name": "Dralsi",
+		"realm": "Thrall",
+		"battlegroup": "Rampage",
+		"class": 10,
+		"race": 2,
+		"gender": 0,
+		"level": 110,
+		"achievementPoints": 11505,
+		"thumbnail": "thrall/239/165111535-avatar.jpg",
+		"calcClass": "f",
+		"faction": 1,
+		"totalHonorableKills": 1111
+	}
+</pre>
+<p>
+	I really only want to display some of this information on my page, you can use it however you wish. I append the values I want to my HTML using:
+</p> 
+<pre>
+		// Update character data
+		document.getElementById('charname').textContent = charData.name;
+		document.getElementById('charrealm').textContent = charData.realm;
+		document.getElementById('charbg').textContent = charData.battlegroup;
+		document.getElementById('charachp').textContent = charData.achievementPoints;
+		document.getElementById('charhks').textContent = charData.totalHonorableKills;
+</pre>
+<p>
+	Note that this is placed inside the on-load event listener because we don't want to update our HTML content unless we actually have the data or it will just update it with nothing.
+</p>
+<h3> How about something more useful? </h3>
+<p>
+	After our little Javascript tutorial and request for information a player probably already knows about their character, how about we do something more useful?
+	By entering a little bit more into our request URL we can get information about a character's completed quests. This again uses the Character Profile API and has the form:
+</p>
+<p>GET /WOW/CHARACTER/REALM/CHARACTERNAME/FIELDS=QUESTS/LOCALE/APIKEY</p>
+<p>
+	This is essentially exactly the same as the basic character information request but with a specification in the field section. This same form is used to get information for many other fields in the character API such as achievements, pets, professions, etc. simply 
+	by changing what is in the FIELDS part. Let's get some quest completion data and do something cool with it:
+</p>
+<pre>
+	var questReq = new XMLHttpRequest();
+	questReq.open("GET", "https://us.api.battle.net/wow/character/thrall/Dralsi?fields=quests&locale=en_US&apikey=c7hv6esk265g4ujytse3vbmdz5mcp5nz", true);
+	questReq.addEventListener("load", function()
+		{
+			if(questReq.status >= 200 && questReq.status < 400)
+			{
+				var questData = JSON.parse(questReq.responseText);
+				console.log("Quest data retrieved.");
+			}
+			else
+			{
+				console.log("Error in network request: " + questReq.statusText);
+			}
+			checkDailies(questData);
+		});
+	questReq.send(null);
+	console.log("Requesting quest data.")
+</pre>
+<p>
+	This should look nearly exactly similar to our first request with the exception of variable names and the fields=quests& part of the request URL, and the function call
+	checkDailies() which is coming up next. The data response is mostly the same as well, with the exception of the JSON key "quests" with its value being an array of all the quest ids completed by the given character.
+	Quest data from the API is pretty much all given as quest ids which aren't usually seen in game. If you want the quest id of a certain quest you will have to look it up some some database like WoWhead or via an ingame addOn that will display quest ids.
+</p>
+<p>
+	Daily quests have always been a part of WoW. Now with so much old content to play through it can be pretty tough to keep track of all the dailies you want to do
+	and whether or not you have done them during the current quest reset period. Here's a key piece of information on how to use the API to track dailies: The quest id for a daily quest is ONLY included in a character's completed quest list IF it has been completed during that reset period. 
+	If you haven't done a certain daily that day, its id wont be in that quest completion information we just requested using the API. Let's take a look at the checkDailies() function
+	to process our data from Blizzard: 
+</p>
+<pre>
+	function checkDailies(questData)
+	{
+		var questList = questData.quests;
+		var questLength = questList.length;
+		document.getElementById('btsixk').textContent = "Incomplete"; //Blingtron 6000
+		for (var i = 0; i<questLength; i++)
+		{
+			var curQuest = questList[i];
+			if (curQuest == 40753) //Blingtron 6000
+			{
+				document.getElementById('btsixk').textContent = "Completed!";
+			}
+		}
+	}
+</pre>
+<p>
+	What we have in our response is an array of quest ids and we know if a daily isn't listed there we haven't done it yet today. This example uses the Blingtron 6000 daily quest whose quest id I looked up to be '40753.'
+	We can now take that array and search through it for whatever quests we're interested in, and if we found the id it means it has been completed for the day, and we can update our HTML to say whether we did or didn't do it yet.
+	Update this code with more quest ids to make your own Daily ToDo list!
+</p>
+<h3> The real reason you're curious about the API, and the sad truth for Javascript </h3>
+<p>
+	Probably the most common reason to want to use the WoW API is to access data dumps for the Auction House. You can get pricing information and do all kinds of economical things with it.
+	While it is completely possible to do this, sadly it is NOT possible to do this with just Javascript. Let's take a look at how it would be done (and used to be done) and WHY it no longer works.
+</p>
+<p>
+	The Auction API is different from the character API in the fact that it is two-part and the data isn't immediately
+	returned when requested. Instead the first request will return a URL (in a JSON string) that points to a file that contains the most recent data dump of all the auctions in that snapshot.
+	The auction data API is in the form:
+</p>
+<p>GET /WOW/AUCTION/DATA/REALM/LOCALE/APIKEY</p>
+<p>
+	The first request would look something like this:
+</p>
+<pre>
+	var aucReq = new XMLHttpRequest();
+	aucReq.open("GET", "https://us.api.battle.net/wow/auction/data/thrall?locale=en_US&apikey=c7hv6esk265g4ujytse3vbmdz5mcp5nz", true);
+	aucReq.addEventListener("load", function()
+		{
+			if(aucReq.status >= 200 && aucReq.status < 400)
+			{
+				var aucResp = JSON.parse(aucReq.responseText);
+				console.log("Auction url retrieved.");
+				var aucFile = aucResp.files[0].url;
+			}
+			else
+			{
+				console.log("Error in network request: " + aucReq.statusText);
+			}
+			grabAHData(aucFile);
+		});
+	aucReq.send(null);
+	console.log("Requesting auction url.")
+</pre>
+<p>
+	This is essentially the same as we've been doing, and our parsed object would end up looking something like:
+</p>
+<pre>
+{
+    "files": [{
+        "url": "http://auction-api-us.worldofwarcraft.com/auction-data/de55febb04096123926bca84d7b31f1c/auctions.json",
+        "lastModified": 1488620275000
+    }]
+}
+</pre>
+<p>
+	To actually get the auction data we would then need to take the response URL and go get the JSON from there, which would look something like:
+</p>
+<pre>
+	function grabAHData(aucFile)
+	{
+		var aucReqtwo = new XMLHttpRequest();
+		aucReqtwo.open("GET", aucFile, true)
+		aucReqtwo.addEventListener("load", function()
+		{
+			if(aucReqtwo.status >= 200 && aucReqtwo.status < 400)
+			{
+			var aucData = evalJSON(aucReqtwo.responseText);
+			console.log("Auction data retrieved.");
+			}
+			else
+			{
+				console.log("Error in network request: " + aucReqtwo.statusText);
+			}
+			checkAuctions(aucData);
+		});
+		aucReqtwo.send(null);
+	}
+
+	function evalJSON(json)
+	{
+		return eval("(" + json + ")");
+	}
+</pre>
+<p>
+	The first function here basically just makes another request the
+	same as we have been doing, and then calls checkAuctions() which will be talked about later. The second function is just a helper that uses 'eval.' This is used instead of JSON.parse() since the file isn't a string its just a JSON file
+	and thus doesn't need to be parsed. A good thing too, since most auction house dumps are at least 15 MB or so and JSON.parse() can only handle up to 14 MB. If this second request was accepted, we could use the function checkAuctions() to get some price information:
+</p>
+<pre>
+	function checkAuctions(aucData)
+	{
+		var auctionList = aucData.auctions;
+		var aLength = auctionList.length;
+		var leylightArr = []; //item=124441 
+		var arkhanaArr = []; //item=124440
+		for (var i = 0; i<aLength; i++)
+		{
+			var curAuc = auctionList[i];
+			if (curAuc.item == 124441)
+			{
+				leylightArr.push(curAuc.buyout/curAuc.quantity);
+			}
+			else if(curAuc.item == 124440)
+			{
+				arkhanaArr.push(curAuc.buyout/curAuc.quantity);
+			}
+		}
+		var leyAvg = leylightArr.sum()/leylightArr.length;
+		var arkAvg = arkhanaArr.sum()/arkhanaArr.length;
+		var leyShatter;
+		if ((arkAvg*3) > leyAvg)
+		{
+			leyShatter = 1;
+		}
+		else 
+		{
+			leyShatter = 0;
+		}
+		// Update with auction data
+		document.getElementById('leyprice').textContent = leyAvg;
+		document.getElementById('arkprice').textContent = arkAvg;
+		if(leyShatter == 1)
+			{
+				document.getElementById('shatterley').textContent = "Shatter!";
+			}
+		else
+			{
+				document.getElementById('shatterley').textContent = "Don't shatter!";
+			}
+	}
+</pre> 
+<p>
+	This function would take our auction data that we saved, search through all the auctions, and pick out any auctions for Leylight Shards or Arkhana. You would have to look up the item ids of any item you would want to add since the item name is not used, only the item id.
+	From the selected auctions, the buyout price per item would be calculated and pushed to a respective array for each item. The average buyout price per item is calculated from that, and finally the a comparison is made to determine if the price of 3 Arkhana is more or less than the price of 1 Leylight Shard and the HTML
+	is updated to display whether or not Leylight shards should be shattered into Arkhana or not. You could add your own items to watch for depending on whatever your professions are. Neat right? But now the (semi)sad part: browser requests for the auction house dump data are current BLOCKED on Blizzards end. The dumps can be obtained through
+	any non browser based request, such as PHP, and used in the way described just fine. Why this limitation? Who knows. Probably somebody, but as of this writing is currently cannot be done via Javascript. 
+</p> 
+<h3> In closing </h3>
+<p>
+	This simple getting started barely scratches the surface of what is possible using the API but hopefully it's a start. You could make a reputation tracker to show your reputation progress with factions of your choice, create a guild page and set up guild progress trackers, search for recipies your character doesn't know for their given professions, the list goes on.
+	Fortunately getting the data to achieve those results is essentially the same process. Good luck!
+</p>
 </body>
 </html>
