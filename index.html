@@ -49,28 +49,28 @@
 	There is dropdown for the locale field on the official documentation site that lists the available options. You will need to send your own API key with every request as well. Let's send an actual request, and save the response to do with it what we would like. A request in Javascript would look something like this:
 </p>
 <pre>
-	var charReq = new XMLHttpRequest();
-	charReq.open("GET", "https://us.api.battle.net/wow/character/thrall/Dralsi?locale=en_US&apikey=c7hv6esk265g4ujytse3vbmdz5mcp5nz", true);
-	charReq.addEventListener("load", function()
+var charReq = new XMLHttpRequest();
+charReq.open("GET", "https://us.api.battle.net/wow/character/thrall/Dralsi?locale=en_US&apikey=c7hv6esk265g4ujytse3vbmdz5mcp5nz", true);
+charReq.addEventListener("load", function()
+	{
+		if(charReq.status >= 200 && charReq.status < 400)
 		{
-			if(charReq.status >= 200 && charReq.status < 400)
-			{
-				var charData = JSON.parse(charReq.responseText);
-				console.log("Character data retrieved.");
-			}
-			else
-			{
-				console.log("Error in network request: " + charReq.statusText);
-			}
-			// Update character data
-			document.getElementById('charname').textContent = charData.name;
-			document.getElementById('charrealm').textContent = charData.realm;
-			document.getElementById('charbg').textContent = charData.battlegroup;
-			document.getElementById('charachp').textContent = charData.achievementPoints;
-			document.getElementById('charhks').textContent = charData.totalHonorableKills;
-		});
-	charReq.send(null);
-	console.log("Requesting character data.");
+			var charData = JSON.parse(charReq.responseText);
+			console.log("Character data retrieved.");
+		}
+		else
+		{
+			console.log("Error in network request: " + charReq.statusText);
+		}
+		// Update character data
+		document.getElementById('charname').textContent = charData.name;
+		document.getElementById('charrealm').textContent = charData.realm;
+		document.getElementById('charbg').textContent = charData.battlegroup;
+		document.getElementById('charachp').textContent = charData.achievementPoints;
+		document.getElementById('charhks').textContent = charData.totalHonorableKills;
+	});
+charReq.send(null);
+console.log("Requesting character data.");
 </pre>
 <p>
 	What's going on here? First we have:
@@ -93,18 +93,18 @@
 	This part:
 </p>
 <pre>
-	charReq.addEventListener("load", function()
+charReq.addEventListener("load", function()
+	{
+		if(charReq.status >= 200 && charReq.status < 400)
 		{
-			if(charReq.status >= 200 && charReq.status < 400)
-			{
-				var charData = JSON.parse(charReq.responseText);
-				console.log("Character data retrieved.");
-			}
-			else
-			{
-				console.log("Error in network request: " + charReq.statusText);
-			}
-		});
+			var charData = JSON.parse(charReq.responseText);
+			console.log("Character data retrieved.");
+		}
+		else
+		{
+			console.log("Error in network request: " + charReq.statusText);
+		}
+	});
 </pre>
 <p>
 	adds an event listener that will trigger when we actually get the information back. Since it is a network request, the time to send and receive the information
@@ -120,32 +120,32 @@
 	<pre>JSON.parse(charReq.responseText)</pre> will do this for us. Then our character data will look something like this:
 </p>
 <pre>
-	{
-		"lastModified": 1488534078000,
-		"name": "Dralsi",
-		"realm": "Thrall",
-		"battlegroup": "Rampage",
-		"class": 10,
-		"race": 2,
-		"gender": 0,
-		"level": 110,
-		"achievementPoints": 11505,
-		"thumbnail": "thrall/239/165111535-avatar.jpg",
-		"calcClass": "f",
-		"faction": 1,
-		"totalHonorableKills": 1111
-	}
+{
+	"lastModified": 1488534078000,
+	"name": "Dralsi",
+	"realm": "Thrall",
+	"battlegroup": "Rampage",
+	"class": 10,
+	"race": 2,
+	"gender": 0,
+	"level": 110,
+	"achievementPoints": 11505,
+	"thumbnail": "thrall/239/165111535-avatar.jpg",
+	"calcClass": "f",
+	"faction": 1,
+	"totalHonorableKills": 1111
+}
 </pre>
 <p>
 	I really only want to display some of this information on my page, you can use it however you wish. I append the values I want to my HTML using:
 </p> 
 <pre>
-		// Update character data
-		document.getElementById('charname').textContent = charData.name;
-		document.getElementById('charrealm').textContent = charData.realm;
-		document.getElementById('charbg').textContent = charData.battlegroup;
-		document.getElementById('charachp').textContent = charData.achievementPoints;
-		document.getElementById('charhks').textContent = charData.totalHonorableKills;
+	// Update character data
+	document.getElementById('charname').textContent = charData.name;
+	document.getElementById('charrealm').textContent = charData.realm;
+	document.getElementById('charbg').textContent = charData.battlegroup;
+	document.getElementById('charachp').textContent = charData.achievementPoints;
+	document.getElementById('charhks').textContent = charData.totalHonorableKills;
 </pre>
 <p>
 	Note that this is placed inside the on-load event listener because we don't want to update our HTML content unless we actually have the data or it will just update it with nothing.
@@ -161,23 +161,23 @@
 	by changing what is in the FIELDS part. Let's get some quest completion data and do something cool with it:
 </p>
 <pre>
-	var questReq = new XMLHttpRequest();
-	questReq.open("GET", "https://us.api.battle.net/wow/character/thrall/Dralsi?fields=quests&locale=en_US&apikey=c7hv6esk265g4ujytse3vbmdz5mcp5nz", true);
-	questReq.addEventListener("load", function()
+var questReq = new XMLHttpRequest();
+questReq.open("GET", "https://us.api.battle.net/wow/character/thrall/Dralsi?fields=quests&locale=en_US&apikey=c7hv6esk265g4ujytse3vbmdz5mcp5nz", true);
+questReq.addEventListener("load", function()
+	{
+		if(questReq.status >= 200 && questReq.status < 400)
 		{
-			if(questReq.status >= 200 && questReq.status < 400)
-			{
-				var questData = JSON.parse(questReq.responseText);
-				console.log("Quest data retrieved.");
-			}
-			else
-			{
-				console.log("Error in network request: " + questReq.statusText);
-			}
-			checkDailies(questData);
-		});
-	questReq.send(null);
-	console.log("Requesting quest data.")
+			var questData = JSON.parse(questReq.responseText);
+			console.log("Quest data retrieved.");
+		}
+		else
+		{
+			console.log("Error in network request: " + questReq.statusText);
+		}
+		checkDailies(questData);
+	});
+questReq.send(null);
+console.log("Requesting quest data.")
 </pre>
 <p>
 	This should look nearly exactly similar to our first request with the exception of variable names and the fields=quests& part of the request URL, and the function call
@@ -191,20 +191,20 @@
 	to process our data from Blizzard: 
 </p>
 <pre>
-	function checkDailies(questData)
+function checkDailies(questData)
+{
+	var questList = questData.quests;
+	var questLength = questList.length;
+	document.getElementById('btsixk').textContent = "Incomplete"; //Blingtron 6000
+	for (var i = 0; i < questLength; i++)
 	{
-		var questList = questData.quests;
-		var questLength = questList.length;
-		document.getElementById('btsixk').textContent = "Incomplete"; //Blingtron 6000
-		for (var i = 0; i < questLength; i++)
+		var curQuest = questList[i];
+		if (curQuest == 40753) //Blingtron 6000
 		{
-			var curQuest = questList[i];
-			if (curQuest == 40753) //Blingtron 6000
-			{
-				document.getElementById('btsixk').textContent = "Completed!";
-			}
+			document.getElementById('btsixk').textContent = "Completed!";
 		}
 	}
+}
 </pre>
 <p>
 	What we have in our response is an array of quest ids and we know if a daily isn't listed there we haven't done it yet today. This example uses the Blingtron 6000 daily quest whose quest id I looked up to be '40753.'
@@ -226,64 +226,64 @@
 	The first request would look something like this:
 </p>
 <pre>
-	var aucReq = new XMLHttpRequest();
-	aucReq.open("GET", "https://us.api.battle.net/wow/auction/data/thrall?locale=en_US&apikey=c7hv6esk265g4ujytse3vbmdz5mcp5nz", true);
-	aucReq.addEventListener("load", function()
+var aucReq = new XMLHttpRequest();
+aucReq.open("GET", "https://us.api.battle.net/wow/auction/data/thrall?locale=en_US&apikey=c7hv6esk265g4ujytse3vbmdz5mcp5nz", true);
+aucReq.addEventListener("load", function()
+	{
+		if(aucReq.status >= 200 && aucReq.status < 400)
 		{
-			if(aucReq.status >= 200 && aucReq.status < 400)
-			{
-				var aucResp = JSON.parse(aucReq.responseText);
-				console.log("Auction url retrieved.");
-				var aucFile = aucResp.files[0].url;
-			}
-			else
-			{
-				console.log("Error in network request: " + aucReq.statusText);
-			}
-			grabAHData(aucFile);
-		});
-	aucReq.send(null);
-	console.log("Requesting auction url.")
+			var aucResp = JSON.parse(aucReq.responseText);
+			console.log("Auction url retrieved.");
+			var aucFile = aucResp.files[0].url;
+		}
+		else
+		{
+			console.log("Error in network request: " + aucReq.statusText);
+		}
+		grabAHData(aucFile);
+	});
+aucReq.send(null);
+console.log("Requesting auction url.")
 </pre>
 <p>
 	This is essentially the same as we've been doing, and our parsed object would end up looking something like:
 </p>
 <pre>
 {
-    "files": [{
-        "url": "http://auction-api-us.worldofwarcraft.com/auction-data/de55febb04096123926bca84d7b31f1c/auctions.json",
-        "lastModified": 1488620275000
-    }]
+	"files": [{
+	"url": "http://auction-api-us.worldofwarcraft.com/auction-data/de55febb04096123926bca84d7b31f1c/auctions.json",
+	"lastModified": 1488620275000
+	}]
 }
 </pre>
 <p>
 	To actually get the auction data we would then need to take the response URL and go get the JSON from there, which would look something like:
 </p>
 <pre>
-	function grabAHData(aucFile)
+function grabAHData(aucFile)
+{
+	var aucReqtwo = new XMLHttpRequest();
+	aucReqtwo.open("GET", aucFile, true)
+	aucReqtwo.addEventListener("load", function()
 	{
-		var aucReqtwo = new XMLHttpRequest();
-		aucReqtwo.open("GET", aucFile, true)
-		aucReqtwo.addEventListener("load", function()
+		if(aucReqtwo.status >= 200 && aucReqtwo.status < 400)
 		{
-			if(aucReqtwo.status >= 200 && aucReqtwo.status < 400)
-			{
-			var aucData = evalJSON(aucReqtwo.responseText);
-			console.log("Auction data retrieved.");
-			}
-			else
-			{
-				console.log("Error in network request: " + aucReqtwo.statusText);
-			}
-			checkAuctions(aucData);
-		});
-		aucReqtwo.send(null);
-	}
+		var aucData = evalJSON(aucReqtwo.responseText);
+		console.log("Auction data retrieved.");
+		}
+		else
+		{
+			console.log("Error in network request: " + aucReqtwo.statusText);
+		}
+		checkAuctions(aucData);
+	});
+	aucReqtwo.send(null);
+}
 
-	function evalJSON(json)
-	{
-		return eval("(" + json + ")");
-	}
+function evalJSON(json)
+{
+	return eval("(" + json + ")");
+}
 </pre>
 <p>
 	The first function here basically just makes another request the
@@ -291,47 +291,47 @@
 	and thus doesn't need to be parsed. A good thing too, since most auction house dumps are at least 15 MB or so and JSON.parse() can only handle up to 14 MB. If this second request was accepted, we could use the function checkAuctions() to get some price information:
 </p>
 <pre>
-	function checkAuctions(aucData)
+function checkAuctions(aucData)
+{
+	var auctionList = aucData.auctions;
+	var aLength = auctionList.length;
+	var leylightArr = []; //item=124441 
+	var arkhanaArr = []; //item=124440
+	for (var i = 0; i < aLength; i++)
 	{
-		var auctionList = aucData.auctions;
-		var aLength = auctionList.length;
-		var leylightArr = []; //item=124441 
-		var arkhanaArr = []; //item=124440
-		for (var i = 0; i < aLength; i++)
+		var curAuc = auctionList[i];
+		if (curAuc.item == 124441)
 		{
-			var curAuc = auctionList[i];
-			if (curAuc.item == 124441)
-			{
-				leylightArr.push(curAuc.buyout/curAuc.quantity);
-			}
-			else if(curAuc.item == 124440)
-			{
-				arkhanaArr.push(curAuc.buyout/curAuc.quantity);
-			}
+			leylightArr.push(curAuc.buyout/curAuc.quantity);
 		}
-		var leyAvg = leylightArr.sum()/leylightArr.length;
-		var arkAvg = arkhanaArr.sum()/arkhanaArr.length;
-		var leyShatter;
-		if ((arkAvg*3) > leyAvg)
+		else if(curAuc.item == 124440)
 		{
-			leyShatter = 1;
+			arkhanaArr.push(curAuc.buyout/curAuc.quantity);
 		}
-		else 
-		{
-			leyShatter = 0;
-		}
-		// Update with auction data
-		document.getElementById('leyprice').textContent = leyAvg;
-		document.getElementById('arkprice').textContent = arkAvg;
-		if(leyShatter == 1)
-			{
-				document.getElementById('shatterley').textContent = "Shatter!";
-			}
-		else
-			{
-				document.getElementById('shatterley').textContent = "Don't shatter!";
-			}
 	}
+	var leyAvg = leylightArr.sum()/leylightArr.length;
+	var arkAvg = arkhanaArr.sum()/arkhanaArr.length;
+	var leyShatter;
+	if ((arkAvg*3) > leyAvg)
+	{
+		leyShatter = 1;
+	}
+	else 
+	{
+		leyShatter = 0;
+	}
+	// Update with auction data
+	document.getElementById('leyprice').textContent = leyAvg;
+	document.getElementById('arkprice').textContent = arkAvg;
+	if(leyShatter == 1)
+		{
+			document.getElementById('shatterley').textContent = "Shatter!";
+		}
+	else
+		{
+			document.getElementById('shatterley').textContent = "Don't shatter!";
+		}
+}
 </pre> 
 <p>
 	This function would take our auction data that we saved, search through all the auctions, and pick out any auctions for Leylight Shards or Arkhana. You would have to look up the item ids of any item you would want to add since the item name is not used, only the item id.
