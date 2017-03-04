@@ -5,7 +5,7 @@ html, body {
 }
 
 body {
-  font-family: Georgia, 'Nimbus Roman No9 L', 'Century Schoolbook L', serif;
+  font-family: Georgia, serif;
   font-size: 20px;
   line-height: 1.45;
   color: black;
@@ -16,13 +16,20 @@ pre {
   padding: 5px 0 5px 15px;
   line-height: 1.35;
   margin: 1rem 0;
+  font-size: 18px;
+  font-family: "Lucida Console", Monaco, monospace;
 }
 
 h1, h2, h3 {
-  font-family: 'Cinzel', Georgia, serif;
+  font-family: Georgia, serif;
   font-weight: 700;
   margin: 1rem 0;
   letter-spacing: 2px;
+}
+
+p, h1, h2, h3 {
+    margin-right: -30px;
+    padding-right: 30px;
 }
 
 h1 {
